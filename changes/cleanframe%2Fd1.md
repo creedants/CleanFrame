@@ -1,0 +1,1 @@
+- Add `docs/owner-tv-checklist.md`: the four values an owner reads off their Frame (model code, firmware string, Tizen version, Developer Mode state) before setup, where each appears on the TV, and which reference-machine assumptions in `scripts/package.py`, `scripts/tv.py` and `scripts/native-home/` depend on each.
