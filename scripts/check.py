@@ -47,6 +47,12 @@ for css in app.rglob('*.css'):
     for reference in re.findall(r'url\([\"\']?([^\)\"\']+)', css.read_text()):
         if ':' not in reference:
             assert (css.parent / reference.split('?')[0]).is_file(), 'Missing CSS resource: ' + reference
+banned = re.compile(r'(?:^|[{;])\s*((?:row-|column-|grid-)?gap|inset(?:-[a-z]+)*)\s*:', re.M | re.I)
+for css in app.rglob('*.css'):
+    text = re.sub(r'/\*.*?\*/', lambda m: ''.join(c if c == '\n' else ' ' for c in m.group(0)), css.read_text(), flags=re.S)
+    for match in banned.finditer(text):
+        line = text.count('\n', 0, match.start(1)) + 1
+        assert False, str(css.relative_to(root)) + ':' + str(line) + ' banned property ' + match.group(1) + ' banned by the Chromium M76 compatibility policy (flex gap and inset shorthand require newer Chromium)'
 # These resource names are constructed at runtime, so HTML/CSS reference checks cannot find them.
 walls = json.loads((app / 'assets/wallpapers/SOURCES.json').read_text())
 for wall in walls:
