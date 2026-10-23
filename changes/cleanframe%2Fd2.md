@@ -1,0 +1,1 @@
+- Let `scripts/package.py` read the signing profile name and SDK directory from optional ignored `.local/packaging.json` (defaults `FrameHome` and `.local/tizen-sdk` keep the current setup unchanged, Linux falls back to `tools/ide/bin/tizen.sh`), and document the Linux owner setup in `docs/development.md`.
