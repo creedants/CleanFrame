@@ -1,0 +1,1 @@
+- Give the fork its own Tizen app identity `huKkDO8xJQ.CleanFrame` (package `huKkDO8xJQ`) in `app/config.xml`, `app/device.js`, `scripts/check.py`, `scripts/check-browser.mjs`, `scripts/native-home/Control.cs` and `docs/owner-tv-checklist.md`, replacing the reference app `nClrkHome1.FrameHome`.
