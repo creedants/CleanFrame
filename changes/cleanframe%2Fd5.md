@@ -1,0 +1,1 @@
+- Extend `scripts/check.py`: bind the manifest package/app ID from `app/config.xml` to the `app/device.js` SELF filter, the `scripts/native-home/Control.cs` Target constant, and the install-folder guard via a strict one-match extractor over a three-row binding table.
