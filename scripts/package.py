@@ -37,11 +37,6 @@ def load_config():
 
 
 def resolve_sdk_dir(value, root=ROOT):
-    """Resolve an sdkDir value against root.
-
-    Relative values resolve from the repository root; absolute values
-    are used as given. A leading ~ is not expanded.
-    """
     path = Path(value)
     if path.is_absolute():
         return path
@@ -89,7 +84,7 @@ def check_inputs(root=ROOT):
     data = sdk / 'data'
     planned = 'TIZEN_SDK_INSTALLED_PATH=' + str(sdk) + '\nTIZEN_SDK_DATA_PATH=' + str(data) + '\nJDK_PATH=' + str(sdk / 'jdk') + '\n'
     info = sdk / 'sdk.info'
-    if sdk.resolve().is_relative_to((root / '.local').resolve()):
+    if info.resolve().is_relative_to((root / '.local').resolve()):
         planned_sdk_info = planned
     elif not info.exists():
         planned_sdk_info = planned

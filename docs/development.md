@@ -55,7 +55,7 @@ For developer access, connect the TV and Mac to the same network, enable Develop
 
 ## Another owner on Linux
 
-Install the Samsung TV SDK (Tizen Studio with the Certificate Extension) into `.local/tizen-sdk`, or point the `sdkDir` key below at another dedicated copy. `npm run package` writes `sdk.info` and creates `data/` inside that directory, and refuses to rewrite an `sdk.info` that already exists outside `.local/` with different content, so keep it pointed at a dedicated copy and do not point it at a Tizen Studio install you use for other work. Create your own Samsung author certificate and a distributor certificate for your TV. The distributor certificate needs the TV's DUID. Select the connected TV in the certificate tools during an authorised developer-connection step, or read Unique Device ID in the TV's support menu ([setup guide, Stage 4](agent-tv-setup-guide.md)).
+Install the Samsung TV SDK (Tizen Studio with the Certificate Extension) into `.local/tizen-sdk`, or point the `sdkDir` key below at another dedicated copy. `npm run package` writes `sdk.info` and creates `data/` inside that directory. It refuses to rewrite an `sdk.info` that already exists outside `.local/` with different content, so a dedicated copy outside `.local/` whose existing `sdk.info` differs stops packaging until you delete that file. Do not point `sdkDir` at a Tizen Studio install you use for other work. Create your own Samsung author certificate and a distributor certificate for your TV. The distributor certificate needs the TV's DUID. Select the connected TV in the certificate tools during an authorised developer-connection step, or read Unique Device ID in the TV's support menu ([setup guide, Stage 4](agent-tv-setup-guide.md)).
 
 Place the files the same way:
 
