@@ -53,6 +53,25 @@ Create `.local/device.json` with:
 
 For developer access, connect the TV and Mac to the same network, enable Developer Mode in Apps → App Settings → 12345 and enter the Mac's local address. Fully restart the TV if the developer port remains closed.
 
+## Another owner on Linux
+
+Install the Samsung TV SDK (Tizen Studio with the Certificate Extension) into `.local/tizen-sdk`, or point the `sdkDir` key below at another dedicated copy. `npm run package` rewrites `sdk.info` and creates `data/` inside that directory, so do not point it at a Tizen Studio install you use for other work. Create your own Samsung author certificate and a distributor certificate for your TV. The distributor certificate needs the TV's DUID. Select the connected TV in the certificate tools during an authorised developer-connection step, or read Unique Device ID in the TV's support menu ([setup guide, Stage 4](agent-tv-setup-guide.md)).
+
+Place the files the same way:
+
+- `.local/certificates/private/`: your author and distributor certificates, private keys and generated password.
+- `.local/certificates/private/certificate-password.txt`: the generated certificate password.
+- `.local/certificates/ca/`: the CA certificates from the Certificate Extension.
+- `.local/certificates/private/profiles.xml`: your signing profiles. It stays ignored.
+
+Optional `.local/packaging.json` (also ignored) overrides two defaults:
+
+```json
+{"signingProfile": "YOUR_PROFILE_NAME", "sdkDir": ".local/tizen-sdk"}
+```
+
+Omit the file or a key to keep the default. A relative `sdkDir` is resolved from the repository root and an absolute one is used as given; `~` is not expanded. Unknown keys are rejected, so a misspelt key fails loudly instead of being ignored.
+
 ## Install and launch
 
 `npm run tv:install` uploads the signed widget with a unique build filename and calls Samsung's `vd_appinstall` command. It checks for `install completed` and confirms the app appears in the installed-app list. `sdb install` on this TV only uploaded the widget and did not install it.
