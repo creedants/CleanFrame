@@ -52,7 +52,7 @@ for css in app.rglob('*.css'):
     text = re.sub(r'/\*.*?\*/', lambda m: ''.join(c if c == '\n' else ' ' for c in m.group(0)), css.read_text(), flags=re.S)
     for match in banned.finditer(text):
         line = text.count('\n', 0, match.start(1)) + 1
-        assert False, str(css.relative_to(root)) + ':' + str(line) + ' banned property ' + match.group(1) + ' unsupported in Chromium M76 (2021 Samsung TVs)'
+        assert False, str(css.relative_to(root)) + ':' + str(line) + ' banned property ' + match.group(1) + ' banned by the Chromium M76 compatibility policy (flex gap and inset shorthand require newer Chromium)'
 # These resource names are constructed at runtime, so HTML/CSS reference checks cannot find them.
 walls = json.loads((app / 'assets/wallpapers/SOURCES.json').read_text())
 for wall in walls:
