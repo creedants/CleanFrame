@@ -1,6 +1,6 @@
 # Owner TV checklist
 
-Read these four values off your Samsung The Frame before any setup work. Reading them needs only the TV and its remote. No computer connects to the TV at this step.
+Use the TV and its remote to record the available values below before setup. Leave the Tizen version blank if it is not displayed. No computer connects to the TV at this step.
 
 Record the real values only in your private setup record under ignored `.local/`. Never write them into this file or any committed file. The placeholders below show the shape of each entry.
 
@@ -9,7 +9,7 @@ Record the real values only in your private setup record under ignored `.local/`
 1. **Model code.** Open **Settings → Support → About This TV**. Copy the full model code exactly as shown, including size, series and region characters. Record it as `<MODEL_CODE>`.
 2. **Firmware (software) version.** On the same **About This TV** screen, copy the complete software version string, not only its trailing number. Record it as `<FIRMWARE_STRING>`.
 3. **Tizen version.** The repository docs name no TV menu that shows it. If **About This TV** lists a Tizen or OS version, copy it as `<TIZEN_VERSION>`; this is unverified general guidance. Otherwise leave it blank. On the reference TV it was confirmed only from the developer connection's capability report and a native probe, which come later, in an authorised device stage.
-4. **Developer Mode.** Open **Home → Apps → App Settings**, then enter **1, 2, 3, 4, 5** on the remote's number pad (its **123** button). The Developer Mode popup shows whether it is On and which **Host PC IP** it trusts. Record `<DEV_MODE_ON_OR_OFF>`. If it is On, check whether the Host PC IP is the local address of the computer you will set up from, and record only yes or no here. Change nothing in the popup at this step.
+4. **Developer Mode.** Open **Home → Apps → App Settings**, then enter **1, 2, 3, 4, 5** on the remote's number pad (its **123** button). The Developer Mode popup shows whether it is On and which **Host PC IP** it trusts. Record `<DEV_MODE_ON_OR_OFF>`. Leave verification of the Host PC IP against your computer's local address to the later network setup stage. Change nothing in the popup at this step.
 
 If a menu path differs on your model year, follow the closest matching labels, then send your agent a cropped photo of the screen or type the visible labels. The setup guide says menu wording can vary and asks for that fallback ([setup guide, Stage 1 and Stage 2](agent-tv-setup-guide.md)). Crop out serial numbers and account details.
 
@@ -49,9 +49,9 @@ The scripts are written for the reference TV. These are the lines that depend on
 
 The docs do not say which of the firmware and Tizen rows change with a Tizen release and which change with a firmware update. Treat every native Home row as needing a new check after any firmware update (`docs/agent-tv-setup-guide.md:285`).
 
-## Assumptions not read off the TV
+## Other setup assumptions
 
-These depend on none of the four values. Your agent sets them up on the computer or reads them from the project.
+These are separate from the four checklist values. Your agent resolves them using the computer, project files or the TV's network settings.
 
 - Signing and SDK paths. Packaging expects a workspace-local Tizen SDK on macOS, private certificates and `profiles.xml`, and a hard-coded reference signing profile name that your own profile replaces (`scripts/package.py:1`, `scripts/package.py:14-15`, `scripts/package.py:28`, `scripts/package.py:45`). The distributor certificate includes the TV's unique device ID (`docs/agent-tv-setup-guide.md:135`), which is a separate value from the model code (`docs/agent-tv-setup-guide.md:144`).
 - App identity. The helper targets the reference app `nClrkHome1.FrameHome` and checks for its install folder (`scripts/native-home/Control.cs:8`, `scripts/native-home/Control.cs:43`). `scripts/tv.py` reads the app ID from `app/config.xml` (`scripts/tv.py:26`). An identity change also updates the manifest, the assertions in `scripts/check.py` and the launch/self-filter IDs.
