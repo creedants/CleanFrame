@@ -12,6 +12,21 @@ identity = manifest.find('t:application', ns)
 assert identity is not None, 'Missing application identity'
 assert identity.get('package') == 'huKkDO8xJQ', 'Keep the installed package identity stable'
 assert identity.get('id') == 'huKkDO8xJQ.CleanFrame', 'Keep the installed application ID stable'
+package = identity.get('package')
+appid = identity.get('id')
+assert appid.startswith(package + '.'), 'Application ID ' + appid + ' must start with package ' + package + " + '.'"
+def only(path, label, pattern):
+    matches = re.findall(pattern, (root / path).read_text(), re.M)
+    assert len(matches) == 1, path + ' ' + label + ': expected exactly one match, found ' + str(len(matches))
+    return matches[0]
+for path, label, pattern, field in [
+    ('app/device.js', 'SELF', r"^\s*var SELF\s*=\s*'([^']*)';\s*$", 'id'),
+    ('scripts/native-home/Control.cs', 'Target', r'^\s*const string Target\s*=\s*"([^"]*)";\s*$', 'id'),
+    ('scripts/native-home/Control.cs', 'install-folder guard', r'Directory\.Exists\("/opt/usr/apps/([^"]*)"\)', 'package'),
+]:
+    found = only(path, label, pattern)
+    expected = identity.get(field)
+    assert found == expected, path + ' ' + label + ': found ' + found + ' but manifest ' + field + ' is ' + expected
 assert manifest.get('version') == json.loads((root / 'package.json').read_text())['version'], 'Manifest/package versions differ'
 for tag in ['content', 'icon']:
     node = manifest.find('w:' + tag, ns)
