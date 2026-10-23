@@ -1,0 +1,1 @@
+- Fail `scripts/check.py` on any `gap`, `row-gap`, `column-gap`, `grid-gap`, `inset` or `inset-*` declaration in `app/**/*.css`, naming file, line and property as unsupported in Chromium M76 (2021 Samsung TVs), while ignoring `box-shadow: inset` values, `--plate-edge` values, `line-gap-override` and `/* */` comments via newline-preserving stripping.
