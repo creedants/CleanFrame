@@ -1,4 +1,3 @@
-"""Build and sign with the workspace-local official Tizen SDK CLI on macOS or Linux."""
 from pathlib import Path
 import json
 import os
@@ -48,7 +47,6 @@ def find_cli(sdk):
 
 
 config = load_config()
-# An absolute sdkDir replaces ROOT; a relative one stays under the checkout.
 SDK = ROOT / config['sdkDir']
 SIGNING_PROFILE = config['signingProfile']
 if not SDK.exists():
