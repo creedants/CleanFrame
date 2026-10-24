@@ -3,6 +3,11 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { openPreview, root } from './browser.mjs';
 
+const SELF_MATCH = /<tizen:application\b[^>]*\bid="([^"]+)"/.exec(readFileSync(root + 'app/config.xml', 'utf8'));
+if (!SELF_MATCH) throw new Error('check-browser: could not parse tizen:application id from app/config.xml');
+const SELF_ID = SELF_MATCH[1];
+const OLD_HBO = 'cj37Ni3qXM.HBONow';
+
 const KEY = 'cleanframe.home.v1';
 const PRIMARY = ['stremio', 'netflix', 'disneyplus', 'youtube', 'appletv', 'primevideo', 'abciview', 'sbs', 'applemusic'];
 const IDS = ['IkWsFHtOY9.Stremio', 'org.tizen.netflix-app', 'MCmYXNxgcu.DisneyPlus', '9Ur5IzDKqV.TizenYouTube', 'com.samsung.tv.aria-video', 'org.tizen.primevideo', 'mWK87Xghap.ABCiview', 'OyE7OuxlUi.SBSOnDemand', 'org.tizen.apple.apple-music'];
@@ -13,7 +18,8 @@ const CATALOG = IDS.map((id, i) => ({ id, name: NAMES[i], show: true, iconPath: 
   { id: EXTRA, name: UNSAFE_NAME, show: true, iconPath: '' },
   { id: SPOTIFY, name: 'Spotify', show: true, iconPath: '' },
   { id: '5b8c3eb16b.BeamCTVDev', name: 'HBO Max', show: true, iconPath: '' },
-  { id: 'huKkDO8xJQ.CleanFrame', name: 'CleanFrame', show: true },
+  { id: OLD_HBO, name: 'HBO Max', show: true, iconPath: '' },
+  { id: SELF_ID, name: 'CleanFrame', show: true },
   { id: 'AbCdEf1234.worker', name: 'Background worker', show: true },
   { id: 'com.samsung.tv.cobalt-yt', name: 'YouTube', show: true }
 ]);
@@ -242,22 +248,48 @@ try {
     check('Exploration fixtures do not appear', !names.includes('Plex') && !names.includes('Jellyfin'));
     await act('apps.open.' + SPOTIFY); await current.waitForFunction(() => __tv.calls.length > 0);
     check('Extra-brand app launches native ID', (await current.evaluate(() => __tv.calls.at(-1))).id === SPOTIFY);
+    const hboTiles = await current.evaluate(() => [...document.querySelectorAll('[data-action^="apps.open."]')].filter(e => e.textContent.includes('HBO Max')).map(e => e.getAttribute('data-action')));
+    check('Both HBO IDs collapse to one tile', hboTiles.length === 1, hboTiles);
+    const hboMark = await current.evaluate(action => {
+      const row = document.querySelector('[data-action="' + action + '"]'), mark = row && row.querySelector('.mark');
+      return { cls: mark && mark.className, dataMark: mark && mark.getAttribute('data-mark') };
+    }, hboTiles[0]);
+    check('HBO Max tile carries the branded hbomax mark', hboMark && hboMark.dataMark === 'hbomax' && !/monogram/.test(hboMark.cls || ''), hboMark);
+    const hboCalls = await current.evaluate(() => __tv.calls.length);
+    await act(hboTiles[0]);
+    await current.waitForFunction(n => window.__tv.calls.length > n, hboCalls);
+    const hboLaunch = await current.evaluate(() => __tv.calls.at(-1));
+    check('HBO Max launches an installed HBO ID', ['5b8c3eb16b.BeamCTVDev', OLD_HBO].includes(hboLaunch.id), hboLaunch);
     await current.evaluate(() => window.dispatchEvent(new Event('focus')));
-    await scene('home'); await act('home.app.netflix'); await current.waitForFunction(() => __tv.calls.length === 2);
+    await scene('home'); await act('home.app.netflix'); await current.waitForFunction(() => __tv.calls.length === 3);
     check('Primary app keeps verified target', (await current.evaluate(() => __tv.calls.at(-1))).id === IDS[1]);
     await current.evaluate(() => window.dispatchEvent(new Event('focus')));
-    await act('util.art'); await current.waitForFunction(() => __tv.calls.length === 3);
+    await act('util.art'); await current.waitForFunction(() => __tv.calls.length === 4);
     const art = await current.evaluate(() => __tv.calls.at(-1));
     check('Art Mode uses app-control with fullscreen request', art.method === 'launchAppControl' && art.id === 'org.tizen.art-app' && art.control.data.some(d => d.key === 'mode' && d.value[0] === 'fullscreen'), art);
     await current.evaluate(() => window.dispatchEvent(new Event('focus'))); await group('samsung'); await act('samsung.home');
-    await current.waitForFunction(() => __tv.calls.length === 4);
+    await current.waitForFunction(() => __tv.calls.length === 5);
     check('Samsung escape keeps CSFS target', (await current.evaluate(() => __tv.calls.at(-1))).id === 'com.samsung.tv.csfs');
     await current.evaluate(() => window.dispatchEvent(new Event('focus'))); await group('samsung'); await act('samsung.settings');
-    await current.waitForFunction(() => __tv.calls.length === 5);
+    await current.waitForFunction(() => __tv.calls.length === 6);
     check('TV settings keeps installed target', (await current.evaluate(() => __tv.calls.at(-1))).id === 'com.samsung.tv.coba.setting');
     await current.evaluate(() => { window.dispatchEvent(new Event('focus')); __tv.launchFailure = true; });
     await scene('home'); await act('home.app.netflix'); await current.waitForFunction(() => ShoreQA.where().view === 'message');
     check('Launch failure is shown', /could not|unavailable|try again/i.test(await current.locator('#stage').innerText()));
+  });
+  await run('Old HBO ID brands and launches alone', async () => {
+    await page({ catalog: CATALOG.filter(a => a.id !== '5b8c3eb16b.BeamCTVDev') });
+    await library();
+    const actions = await current.evaluate(() => [...document.querySelectorAll('[data-action^="apps.open."]')].filter(e => e.textContent.includes('HBO Max')).map(e => e.getAttribute('data-action')));
+    check('Old HBO ID renders one tile', same(actions, ['apps.open.' + OLD_HBO]), actions);
+    const mark = await current.evaluate(action => {
+      const row = document.querySelector('[data-action="' + action + '"]'), m = row && row.querySelector('.mark');
+      return { cls: m && m.className, dataMark: m && m.getAttribute('data-mark') };
+    }, actions[0]);
+    check('Old-ID tile carries the branded hbomax mark', mark && mark.dataMark === 'hbomax' && !/monogram/.test(mark.cls || ''), mark);
+    await act(actions[0]);
+    await current.waitForFunction(() => window.__tv.calls.length > 0);
+    check('Old-ID launch uses the old native ID', (await current.evaluate(() => window.__tv.calls.at(-1))).id === OLD_HBO);
   });
   await run('Catalogue failure and retry', async () => {
     await page({ catalogFailure: true }); await library();
