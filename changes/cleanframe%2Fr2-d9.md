@@ -1,0 +1,1 @@
+- Lower the manifest `required_version` from 6.5 to 6.0 so that 2021 Tizen 6.0 Frame models accept the package. Update the matching note in `docs/development.md`.
