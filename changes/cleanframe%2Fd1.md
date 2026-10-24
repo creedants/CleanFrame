@@ -1,5 +1,5 @@
 - Add `docs/owner-tv-checklist.md`: the four values an owner reads off their Frame (model code, firmware string, Tizen version, Developer Mode state) before setup, where each appears on the TV, and which reference-machine assumptions in `scripts/package.py`, `scripts/tv.py` and `scripts/native-home/` depend on each.
 - Alias the older HBO Max ID `cj37Ni3qXM.HBONow` to the `hbomax` brand in `app/device.js` (STREAMING and EXTRA_BRANDS), keeping the newer `5b8c3eb16b.BeamCTVDev` entry.
-- Collapse same-brand pairs in `app/device.js` `apps()`: the first TV-order entry with a non-empty brand wins, so both installed HBO IDs render one branded tile and launch keeps the installed native ID.
+- Show each installed HBO Max ID as its own branded tile in All apps, so a saved Home pin keeps its On Home badge whichever HBO ID it uses.
 - Derive the check-browser CleanFrame fixture ID from `app/config.xml` (`tizen:application` id attribute, failing loudly when unparsable) instead of a literal, so the self-exclusion assertion binds the fixture to the packaged identity (T6).
 - Leave `app/main.js` unchanged: it keys brands by slug and never names a native HBO ID, so the device.js tag already brands both IDs with no main.js change.

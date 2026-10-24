@@ -243,13 +243,13 @@ try {
   await run('Real catalogue and native launch boundary', async () => {
     await page(); await library();
     const names = await current.locator('[data-action^="apps.open."] .label').allTextContents();
-    check('Consumer catalogue excludes services, self and duplicate YouTube', names.length === 12 && names.filter(n => n === 'YouTube').length === 1 && !names.includes('CleanFrame') && !names.includes('Background worker'), names);
+    check('Consumer catalogue excludes services, self and duplicate YouTube', names.length === 13 && names.filter(n => n === 'YouTube').length === 1 && !names.includes('CleanFrame') && !names.includes('Background worker'), names);
     check('Installed names stay text, including HTML punctuation', names.includes(UNSAFE_NAME) && !(await current.evaluate(() => window.__catalogXss)));
     check('Exploration fixtures do not appear', !names.includes('Plex') && !names.includes('Jellyfin'));
     await act('apps.open.' + SPOTIFY); await current.waitForFunction(() => __tv.calls.length > 0);
     check('Extra-brand app launches native ID', (await current.evaluate(() => __tv.calls.at(-1))).id === SPOTIFY);
     const hboTiles = await current.evaluate(() => [...document.querySelectorAll('[data-action^="apps.open."]')].filter(e => e.textContent.includes('HBO Max')).map(e => e.getAttribute('data-action')));
-    check('Both HBO IDs collapse to one tile', hboTiles.length === 1, hboTiles);
+    check('Both HBO IDs render their own tile', same(hboTiles.slice().sort(), ['apps.open.5b8c3eb16b.BeamCTVDev', 'apps.open.' + OLD_HBO]), hboTiles);
     const hboMark = await current.evaluate(action => {
       const row = document.querySelector('[data-action="' + action + '"]'), mark = row && row.querySelector('.mark');
       return { cls: mark && mark.className, dataMark: mark && mark.getAttribute('data-mark') };
@@ -296,7 +296,7 @@ try {
     check('Catalogue failure leaves Home intact', same((await state()).dock, PRIMARY));
     await current.evaluate(() => { __tv.catalogFailure = false; }); await act('apps.retry');
     await current.waitForSelector('[data-action="apps.open.' + EXTRA + '"]');
-    check('Retry displays real installed names', (await current.locator('[data-action^="apps.open."]').count()) === 12);
+    check('Retry displays real installed names', (await current.locator('[data-action^="apps.open."]').count()) === 13);
   });
   await run('Native icon and failed-image fallback', async () => {
     await page({ catalog: CATALOG.map(a => a.id === EXTRA ? { ...a, iconPath: '/home/assets/icons/netflix.svg' } : a) });
